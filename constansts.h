@@ -23,5 +23,5 @@ static enum build_type {
   FINAL
 }
 
-static const int version[] = {ALPHA, 0, 1} //format -> build_type, VERSION_NUMBER, REVISION_NUMBER
+static const int version[] = {ALPHA, 0, 1} //format -> build_type, MAJOR_VISION, MINOR_VERSION, REVISION_NUMBER
 #endif
