@@ -1,11 +1,13 @@
 #include <opencv2/core/core.hpp>
-//#include <opencv2/contrib/contrib.hpp>
+#include <opencv2/contrib/contrib.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
 #include <iostream>
+#include "constants.h"
 
 using namespace std;
 using namespace cv;
+
 enum folks {
 	USER,
 	POLICE,
