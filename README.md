@@ -4,3 +4,6 @@ Roughly named from the initials of the authors 'Gowtham, Gowri, Dinesh, Bharatva
 This project aims to bring to bring survellance with atmost ease by implementing technologies such as IoT and Face Recognition powered by OpenCV and C/C++ and can be compiled by using 
 `make ggbd`
 Additional details will be updated shortly...
+
+Drivers
+DHT22 Heat Sensor - https://github.com/Filkolev/DHT22-sensor-driver
