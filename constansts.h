@@ -9,11 +9,11 @@ static enum folks {
 
 static const char * authors_name = {
   "Bharatvaj",
-  "Dinsh Kumar",
-  "Gowtham",
-  "Gowri"
+  "Dinesh Kumar",
+  "Goutham",
+  "Gowri Shankar"
 }
-static const char *program_name = "Project GGDB"; //program name itself is 'Project GGDB'
+static const char *program_name = "Project-GGDB"; //program name itself is 'Project GGDB'
 
 
 //Below are for debugging purposes and to maintain builds only
