@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <thread>
+#include <signal.h>
 #include <opencv2/core/core.hpp>
 #include <opencv2/contrib/contrib.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -13,7 +14,6 @@ using namespace cv;
 
 int inform(enum folks folk);
 
-//TODO gtk+ 2.00
 int load_gui()
 {
 	cv::namedWindow("GGDB", WINDOW_AUTOSIZE);
@@ -24,50 +24,39 @@ int load_gui()
 //int label = 0;
 
 vector<Mat> images;
-vector<Mat> label;
-
-int addNewPersons(Mat person)
-{
-	while(1){
-	//sqlite l = createDB();
-	//l.query("insert values into ");
-	Ptr<FaceRecognizer> model = createEigenFaceRecognizer();
-	model->train(images, label);
-	
-	}
-}
+vector<int> labels;
 
 
 vector<Mat> suspects;
 int predictLabel = 0;
-	//identify the persons
-	//store them for later purposes
-int recognizePersons(Mat person){
-	while(1){
+
+int i = 0;
+
+//this function is used to process frames
+int proc_frame(Mat image){
+
 	//verification part
-	images.push_back(person);
+	images.push_back(image);
+	labels.push_back(i++);
 	Ptr<FaceRecognizer> model = createEigenFaceRecognizer();
-	if( (predictLabel = model -> predict(images)) == 0){
+	cout << "FaceRecognizer class initialized...";
+	model -> train(images, labels);
+	cout << "trained";
+	cv::Mat grayMat;
+	cv::cvtColor(image, grayMat, cv::COLOR_BGR2GRAY);
+	int predicted = -1;
+	if( (predicted = model -> predict(grayMat)) == 0){
 		//new member
 		if(false){ //FIXME enter only if the detected member is a new member
-			
+		model->train(images, labels);
 		}
 		else {
-			suspects.push_back(person);
+			suspects.push_back(grayMat);
 			cout << "warn the user";
 			//TODO alert through app
 		}
 	}	
 	cout << predictLabel << ",";
-	}
-}
-
-//this function is used to process frames
-int proc_frame(Mat image){
-	std::thread recog(recognizePersons, image);
-	std::thread addPersons(addNewPersons, image);
-	recog.join();
-	addPersons.join();
 }
 
 cv::Mat capture_frame(){
@@ -82,6 +71,7 @@ cv::Mat capture_frame(){
 		exit(0);
 	}
 	imshow("GGDB", frame);
+	//imwrite("../loli.jpg", frame);
 	return frame;
 }	
 
@@ -91,8 +81,15 @@ int start_dvr(){
 	}
 }
 
-int main(int argc, char *argv[]){
 
+void exitHandler(int sig){
+	cout << "writing to Database...please wait";
+	//write suspect and persons to db and exit
+	exit(0);
+}
+
+int main(int argc, char *argv[]){
+	signal(SIGINT, exitHandler);
 	//load_gui via opencv
 	load_gui();
 
