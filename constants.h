@@ -4,31 +4,25 @@
 int CAM = 1; //secind camera
 
 enum cams {
-	ONE 01,
-	TWO 10
-}
+	ONE,
+	TWO
+};
 
-static enum folks {
+enum folks {
   USER,
   POLICE,
   ALL
-}
+};
+//char *program_name = "Project-GGDB"; //program name itself is 'Project GGDB'
 
-static const char * authors_name = {
-  "Bharatvaj",
-  "Dinesh Kumar",
-  "Goutham",
-  "Gowri Shankar"
-}
-static const char *program_name = "Project-GGDB"; //program name itself is 'Project GGDB'
-
+const char *program_name = "Project GGDB";
 
 //Below are for debugging purposes and to maintain builds only
-static enum build_type {
-  ALPHA,
-  BETA,
-  FINAL
-}
+enum build_type {
+  ALPHA=0,
+  BETA=1,
+  FINAL=2
+};
 
-static const int version[] = {ALPHA, 0, 1} //format -> build_type, MAJOR_VISION, MINOR_VERSION, REVISION_NUMBER
+//int version[] = {ALPHA, 0, 1} //format -> build_type, MAJOR_VISION, MINOR_VERSION, REVISION_NUMBER
 #endif
