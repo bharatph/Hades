@@ -5,17 +5,21 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/contrib/contrib.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <sqlite3.h>
 #include "constants.h"
+#include "log.h"
 //#include "init.h"
 
 using namespace std;
 using namespace cv;
 
+#define DEBUGGING
 
 int inform(enum folks folk);
 
 int load_gui()
 {
+	log("initializing GUI", YELLOW);
 	cv::namedWindow("GGDB", WINDOW_AUTOSIZE);
 	//create gui via opencv through highgui
 	return 0;
@@ -30,18 +34,27 @@ vector<int> labels;
 vector<Mat> suspects;
 int predictLabel = 0;
 
-int i = 0;
+int i_n = 0;
+char *zErrMsg = 0;
+int sqlite_callback(void *NotUsed, int argc, char**argv, char **azColName){
+	int i;
+	for(i=0; i<argc; i++){
+		log("callback for sqlite3, executed the command");
+		//TODO print executed command
+	}
+	return 0;
+}
 
 //this function is used to process frames
 int proc_frame(Mat image){
 
 	//verification part
 	images.push_back(image);
-	labels.push_back(i++);
+	labels.push_back(i_n++);
 	Ptr<FaceRecognizer> model = createEigenFaceRecognizer();
-	cout << "FaceRecognizer class initialized...";
+	log("FaceRecognizer class initialized...", GREEN);
 	model -> train(images, labels);
-	cout << "trained";
+	log("trained", GREEN);
 	cv::Mat grayMat;
 	cv::cvtColor(image, grayMat, cv::COLOR_BGR2GRAY);
 	int predicted = -1;
@@ -63,8 +76,7 @@ cv::Mat capture_frame(){
 	VideoCapture cap;
 	cv::Mat frame;
 	if(!cap.open(0)){
-		cout << "cannot open CAM" << endl;
-		exit(0);
+		log("cannot open CAM", FATAL);
 	}
 	cap >> frame;
 	if(frame.empty()){
@@ -81,16 +93,34 @@ int start_dvr(){
 	}
 }
 
-
+sqlite3 *db;
 void exitHandler(int sig){
-	cout << "writing to Database...please wait";
+	log("writing to Database...please wait", YELLOW);
+	sqlite3_exec(db, "select * from table1", sqlite_callback, 0 ,&zErrMsg);
+	sqlite3_free(zErrMsg);
+	sqlite3_close(db);
 	//write suspect and persons to db and exit
 	exit(0);
 }
 
+
+int init_db(){
+	int rc = sqlite3_open("db/db.sqlite3",&db);
+	if(rc){
+		log("can't open database, try giving previleges to the file");
+		return -1;
+	}else{
+		log("database is opened");
+		return 0;
+	}
+}
+
 int main(int argc, char *argv[]){
 	signal(SIGINT, exitHandler);
+	TAG("GGDB");//for logging library
 	//load_gui via opencv
+	if(init_db()<-1) //TODO clean up return types **db_error
+		return -1;
 	load_gui();
 
 	//capture from camera
