@@ -145,7 +145,7 @@ int inform(enum folks folk){
 		return 0;
 	}
 	else if(folk == POLICE){
-		//aert the police and user
+		//alert the police and user
 		return 0;
 	}
 	else if(folk == ALL){
