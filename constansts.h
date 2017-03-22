@@ -1,6 +1,13 @@
 #ifndef CONS_H
 #define CONS_H
 
+int CAM = 1; //secind camera
+
+enum cams {
+	ONE 01,
+	TWO 10
+}
+
 static enum folks {
   USER,
   POLICE,
