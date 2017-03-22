@@ -16,7 +16,9 @@ int inform(enum folks folk);
 //TODO gtk+ 2.00
 int load_gui()
 {
+	cv::namedWindow("GGDB", WINDOW_AUTOSIZE);
 	//create gui via opencv through highgui
+	return 0;
 
 }
 //int label = 0;
@@ -26,21 +28,38 @@ vector<Mat> label;
 
 int addNewPersons(Mat person)
 {
+	while(1){
 	//sqlite l = createDB();
 	//l.query("insert values into ");
 	Ptr<FaceRecognizer> model = createEigenFaceRecognizer();
 	model->train(images, label);
+	
+	}
 }
 
+
+vector<Mat> suspects;
+int predictLabel = 0;
 	//identify the persons
 	//store them for later purposes
 int recognizePersons(Mat person){
+	while(1){
 	//verification part
-	int predictLabel = -1;
-	double confidence = 0.0;
+	images.push_back(person);
 	Ptr<FaceRecognizer> model = createEigenFaceRecognizer();
-	predictLabel = model -> predict(images);
-	return predictLabel;
+	if( (predictLabel = model -> predict(images)) == 0){
+		//new member
+		if(false){ //FIXME enter only if the detected member is a new member
+			
+		}
+		else {
+			suspects.push_back(person);
+			cout << "warn the user";
+			//TODO alert through app
+		}
+	}	
+	cout << predictLabel << ",";
+	}
 }
 
 //this function is used to process frames
@@ -52,11 +71,18 @@ int proc_frame(Mat image){
 }
 
 cv::Mat capture_frame(){
-	VideoCapture cap(0); //open camera
-;
-	Mat image;
-	cap.read(image);
-	return image;
+	VideoCapture cap;
+	cv::Mat frame;
+	if(!cap.open(0)){
+		cout << "cannot open CAM" << endl;
+		exit(0);
+	}
+	cap >> frame;
+	if(frame.empty()){
+		exit(0);
+	}
+	imshow("GGDB", frame);
+	return frame;
 }	
 
 int start_dvr(){
@@ -68,7 +94,7 @@ int start_dvr(){
 int main(int argc, char *argv[]){
 
 	//load_gui via opencv
-//	load_gui();
+	load_gui();
 
 	//capture from camera
 	//process the frames
