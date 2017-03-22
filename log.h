@@ -3,8 +3,8 @@
 
 #include <iostream>
 #include <cstring>
-#include "res.h"
 #include <unistd.h>
+#include "res.h"
 
 int *writefd = new int(2);
 
@@ -14,7 +14,7 @@ int *writefd = new int(2);
    INFO
  };
 
- char tag[64] = "";
+ static char tag[64] = "";
  void TAG(const char *tag_name)
  {
    strcpy(tag, tag_name);
@@ -57,7 +57,7 @@ int *writefd = new int(2);
  void log(const char *msg)
  {
    #ifdef DEBUGGING
-   printf("%s: %s\n", tag, msg);
+   std::cout << tag << ": " << msg << std::endl;
    #endif
  }
 
