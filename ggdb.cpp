@@ -130,11 +130,10 @@ int main(int argc, char *argv[]){
 	//if the stored person is in DB do not alert the home
 	//else if check he is breaking in to the house the inform(folks) 
 	enum folks folk = USER;
-	while(inform(folk) == -1)
-	{
-		
-	}
-	//async--> if there is a fire in the house
+	while(inform(folk) == -1){}
+
+	//async--> if there is a fire in the house. 
+	//NOTE Diku enniku da mudipa , DHT22 :{}
 }
 
 
