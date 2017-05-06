@@ -21,9 +21,9 @@ void clear(){
 void init(){
   std::cout << program_name << " " << version[0] << "-" << version[1] << "." << version[2] << std::endl;
   std::cout << "Program developed by";
- // for(int i = 0; i < 4; i++){ //FIXME use dynamic sizing
-  //  std::cout << authors_name[i].c_str() << std::endl;
-   // }
+ for(int i = 0; i < 4; i++){ //FIXME use dynamic sizing
+   printf("%s, ", authors[i]);
+   }
 	std::cout << "Goutham" << "Gowri Shankar" << "Dinesh Kumar" << "Bharatvaj";
 }
 

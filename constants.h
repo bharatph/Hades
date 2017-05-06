@@ -13,12 +13,10 @@ enum folks {
   POLICE,
   ALL
 };
-//char *program_name = "Project-GGDB"; //program name itself is 'Project GGDB'
 
-char *authors[] = {"Dinesh Kumar", "Goutham", "Gowri Shankar", "Bharatvaj"};
+const char *authors[] = {"Dinesh Kumar", "Goutham", "Gowri Shankar", "Bharatvaj", "Jothi Kumar"};
 
-
-const char *program_name = "Project GGDB";
+const char *program_name = "Hades"; //revolutionary IoT
 
 //Below are for debugging purposes and to maintain builds only
 enum build_type {
@@ -27,5 +25,5 @@ enum build_type {
   FINAL=2
 };
 
-//int version[] = {ALPHA, 0, 1} //format -> build_type, MAJOR_VISION, MINOR_VERSION, REVISION_NUMBER
+int version[] = {0, 0, 1}; //format -> build_type, MAJOR_VISION, MINOR_VERSION, REVISION_NUMBER
 #endif

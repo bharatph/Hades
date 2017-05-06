@@ -133,7 +133,7 @@ int main(int argc, char *argv[]){
 	while(inform(folk) == -1){}
 
 	//async--> if there is a fire in the house. 
-	//NOTE Diku enniku da mudipa , DHT22 :{}
+	//NOTE alloted for Dinesh Kumar , DHT22 :{}
 }
 
 
