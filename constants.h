@@ -15,6 +15,9 @@ enum folks {
 };
 //char *program_name = "Project-GGDB"; //program name itself is 'Project GGDB'
 
+char *authors[] = {"Dinesh Kumar", "Goutham", "Gowri Shankar", "Bharatvaj"};
+
+
 const char *program_name = "Project GGDB";
 
 //Below are for debugging purposes and to maintain builds only
