@@ -1,5 +1,5 @@
 # Hades
-Initially named as Project-GGDB roughly from the initials of the authors 'Gowtham, Gowri, Dinesh, Bharatvaj', developed for the JCI Matheathon contest conducted by Johnson Controls at VIT, Vellore.
+Initially named as Project-GGDB roughly from the initials of the authors 'Goutham, Gowri, Dinesh, Bharatvaj', developed for the JCI Matheathon contest conducted by Johnson Controls at VIT, Vellore.
 
 This software aims to bring surveillance with atmost ease by implementing technologies such as IoT and Face Recognition powered by OpenCV and C/C++.
 
