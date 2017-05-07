@@ -22,7 +22,7 @@ int inform(enum folks folk);
 int load_gui()
 {
 	log("initializing GUI", YELLOW);
-	cv::namedWindow("GGDB", WINDOW_AUTOSIZE);
+	cv::namedWindow("Hades", WINDOW_AUTOSIZE);
 	//create gui via opencv through highgui
 	return 0;
 
@@ -84,8 +84,8 @@ cv::Mat capture_frame(){
 	if(frame.empty()){
 		exit(0);
 	}
-	imshow("GGDB", frame);
-	imwrite("/home/laz3r/Desktop/loli.jpg", frame);
+	cv::imshow("Hades", frame);
+	cv::waitKey(100);
 	return frame;
 }	
 
