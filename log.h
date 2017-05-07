@@ -4,7 +4,15 @@
 #include <iostream>
 #include <cstring>
 #include <unistd.h>
-#include "res.h"
+
+#define RED     "\x1b[31m"
+#define GREEN   "\x1b[32m"
+#define YELLOW  "\x1b[33m"
+#define BLUE    "\x1b[34m"
+#define MAGENTA "\x1b[35m"
+#define CYAN    "\x1b[36m"
+#define COLOR_RESET   "\x1b[0m"
+
 
 int *writefd = new int(2);
 
@@ -21,35 +29,12 @@ int *writefd = new int(2);
  }
 
 
-
- enum COLOR {
-   RED,
-   GREEN,
-   YELLOW,
-   BLUE,
-   MAGENTA,
-   CYAN
- };
-
-
  void print(const char *msg){
    printf( "%s\n", msg);
  }
 
- void print(const char *msg, enum COLOR color){
-    if(color == RED)
-     printf("%s", COLOR_RED);
-    else if (color == GREEN)
-     printf("%s", COLOR_GREEN);
-    else if (color == YELLOW)
-     printf("%s", COLOR_YELLOW);
-    else if (color == BLUE)
-     printf("%s", COLOR_BLUE);
-    else if (color == MAGENTA)
-     printf("%s", COLOR_MAGENTA);
-    else if (color == CYAN)
-     printf("%s", COLOR_CYAN);
-    else{}
+ void print(const char *msg, const char * col){
+     printf("%s", col);
      printf("%s%s\n",  msg, COLOR_RESET);
      //fprintf(stdout, "%s: %s%s", tag, msg, COLOR_RESET); //FIXME fix for log support
  }
@@ -76,9 +61,9 @@ int *writefd = new int(2);
  }
 
 
-void log(const char *msg, enum COLOR color){
+void log(const char *msg, const char * col){
    #ifdef DEBUGGING
-   print(msg, color);
+   print(msg, col);
    #endif
 }
 

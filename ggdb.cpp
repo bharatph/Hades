@@ -2,16 +2,18 @@
 #include <vector>
 #include <thread>
 #include <signal.h>
-#include <opencv2/core/core.hpp>
-#include <opencv2/contrib/contrib.hpp>
-#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/face.hpp>
+#include <opencv2/highgui.hpp>
 #include <sqlite3.h>
 #include "constants.h"
 #include "log.h"
-//#include "init.h"
+#include "init.h"
 
 using namespace std;
 using namespace cv;
+using namespace cv::face;
 
 #define DEBUGGING
 
@@ -83,7 +85,7 @@ cv::Mat capture_frame(){
 		exit(0);
 	}
 	imshow("GGDB", frame);
-	//imwrite("../loli.jpg", frame);
+	imwrite("/home/laz3r/Desktop/loli.jpg", frame);
 	return frame;
 }	
 
