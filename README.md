@@ -1,4 +1,4 @@
-# Haides
+# Hades
 Initially named as Project-GGDB roughly from the initials of the authors 'Gowtham, Gowri, Dinesh, Bharatvaj', developed for the JCI Matheathon contest conducted by Johnson Controls at VIT, Vellore.
 
 This software aims to bring surveillance with atmost ease by implementing technologies such as IoT and Face Recognition powered by OpenCV and C/C++.
@@ -10,7 +10,7 @@ OpenCV 3.1 - https://github.com/opencv/opencv
 opencv_contrib - https://github.com/opencv/opencv_contrib
 
 ### Compiling
-Hades can be compiled by using
+Hades can be compiled by
 `make hades`
 
 ### Install
