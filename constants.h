@@ -18,6 +18,8 @@ const char *authors[] = {"Dinesh Kumar", "Goutham", "Gowri Shankar", "Bharatvaj"
 
 const char *program_name = "Hades"; //revolutionary IoT
 
+const char *program_logo = " ██░ ██  ▄▄▄      ▓█████▄ ▓█████   ██████ \n▓██░ ██▒▒████▄    ▒██▀ ██▌▓█   ▀ ▒██    ▒ \n▒██▀▀██░▒██  ▀█▄  ░██   █▌▒███   ░ ▓██▄   \n░▓█ ░██ ░██▄▄▄▄██ ░▓█▄   ▌▒▓█  ▄   ▒   ██▒\n░▓█▒░██▓ ▓█   ▓██▒░▒████▓ ░▒████▒▒██████▒▒\n ▒ ░░▒░▒ ▒▒   ▓▒█░ ▒▒▓  ▒ ░░ ▒░ ░▒ ▒▓▒ ▒ ░\n ▒ ░▒░ ░  ▒   ▒▒ ░ ░ ▒  ▒  ░ ░  ░░ ░▒  ░ ░\n ░  ░░ ░  ░   ▒    ░ ░  ░    ░   ░  ░  ░  \n ░  ░  ░      ░  ░   ░       ░  ░      ░  \n                   ░                      \n";
+
 //Below are for debugging purposes and to maintain builds only
 enum build_type {
   ALPHA=0,
@@ -25,5 +27,5 @@ enum build_type {
   FINAL=2
 };
 
-int version[] = {0, 0, 1}; //format -> build_type, MAJOR_VISION, MINOR_VERSION, REVISION_NUMBER
+int version[] = {0, 0, 4}; //format -> build_type, MAJOR_VISION, MINOR_VERSION, REVISION_NUMBER
 #endif

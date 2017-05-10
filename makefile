@@ -1,6 +1,9 @@
 CC=g++
-LIBS=`pkg-config --libs opencv` -lsqlite3 #-lopencv_core -lopencv_contrib -lopencv_highgui -lpthread
-CFLAGS=-std=c++11
+LIBS=-lpthread `pkg-config --libs opencv` -lsqlite3
+CFLAGS=-std=c++11 -Wall
 
 hades : hades.cpp
 	$(CC) hades.cpp -o hades $(LIBS) $(CFLAGS)
+
+android: hades.cpp
+	arm-linux-androideabi-g++ hades.cpp -o hades $(LIBS) $(CFLAGS)

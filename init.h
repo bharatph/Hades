@@ -1,7 +1,7 @@
 #ifndef INIT_H
 #define INIT_H
 
-#include <iostream>
+#include <stdio.h>
 #ifdef _WIN32
 #include <windows.h>
 #elif _POSIX_
@@ -17,14 +17,19 @@ void clear(){
   #endif
 }
   
-
-void init(){
-  std::cout << program_name << " " << version[0] << "-" << version[1] << "." << version[2] << std::endl;
-  std::cout << "Program developed by";
- for(int i = 0; i < 4; i++){ //FIXME use dynamic sizing
-   printf("%s, ", authors[i]);
+void print_authors(){
+	//std::ios_base::sync_with_stdio(false);
+  printf("Program developed by ");
+  for(int i = 0; i < 4; i++){ //FIXME use dynamic sizing
+	  printf("%s, ", authors[i]);
    }
-	std::cout << "Goutham" << "Gowri Shankar" << "Dinesh Kumar" << "Bharatvaj";
+  printf("\n");
+}
+void init_hades(){
+	std::ios_base::sync_with_stdio(false);
+	printf("%s",program_logo);
+	printf("%s v%d.%d.%d\n", program_name, version[0], version[1], version[2]);
+	print_authors();
 }
 
 #endif

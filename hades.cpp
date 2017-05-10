@@ -8,6 +8,7 @@
 #include <opencv2/highgui.hpp>
 #include <sqlite3.h>
 #include "constants.h"
+#define LOG
 #include "log.h"
 #include "init.h"
 
@@ -19,85 +20,71 @@ using namespace cv::face;
 
 int inform(enum folks folk);
 
-int load_gui()
-{
-	log("initializing GUI", YELLOW);
-	cv::namedWindow("Hades", WINDOW_AUTOSIZE);
-	//create gui via opencv through highgui
-	return 0;
-
-}
 //int label = 0;
 
 vector<Mat> images;
 vector<int> labels;
-
+Ptr<FaceRecognizer> model;
 
 vector<Mat> suspects;
-int predictLabel = 0;
 
 int i_n = 0;
 char *zErrMsg = 0;
 int sqlite_callback(void *NotUsed, int argc, char**argv, char **azColName){
 	int i;
 	for(i=0; i<argc; i++){
-		log("callback for sqlite3, executed the command");
+		logger("callback for sqlite3, executed the command")(INFO);
 		//TODO print executed command
 	}
 	return 0;
 }
 
-//this function is used to process frames
-int proc_frame(Mat image){
+int load_gui()
+{
+	logger("initializing GUI")(INFO);
+	cv::namedWindow("Hades", WINDOW_AUTOSIZE);
+	//create gui via opencv through highgui
+	return 0;
 
-	//verification part
-	images.push_back(image);
-	labels.push_back(i_n++);
-	Ptr<FaceRecognizer> model = createEigenFaceRecognizer();
-	log("FaceRecognizer class initialized...", GREEN);
-	model -> train(images, labels);
-	log("trained", GREEN);
-	cv::Mat grayMat;
-	cv::cvtColor(image, grayMat, cv::COLOR_BGR2GRAY);
-	int predicted = -1;
-	if( (predicted = model -> predict(grayMat)) == 0){
-		//new member
-		if(false){ //FIXME enter only if the detected member is a new member
-		model->train(images, labels);
-		}
-		else {
-			suspects.push_back(grayMat);
-			cout << "warn the user";
-			//TODO alert through app
-		}
-	}	
-	cout << predictLabel << ",";
 }
-
-cv::Mat capture_frame(){
+void *start_dvr(void *L){
 	VideoCapture cap;
-	cv::Mat frame;
 	if(!cap.open(0)){
-		log("cannot open CAM", FATAL);
+		logger("cannot open CAM")(ERROR);
+		return NULL;
 	}
-	cap >> frame;
-	if(frame.empty()){
-		exit(0);
-	}
-	cv::imshow("Hades", frame);
-	cv::waitKey(100);
-	return frame;
-}	
-
-int start_dvr(){
-	while(true){ //capture_frame != null
-		proc_frame(capture_frame());
+	cv::Mat image;
+	model = createEigenFaceRecognizer();
+	logger("FaceRecognizer class initialized...")(INFO);	
+	cv::Mat grayMat;
+	while(true){ 
+		cap >> image;
+		cv::imshow("Hades", image);
+		cv::waitKey(100);
+		//this function is used to process frames
+		//verification part
+		cv::cvtColor(image, grayMat, cv::COLOR_BGR2GRAY);
+		int predicted = -1;
+		if( (predicted = model -> predict(grayMat)) == 0){
+			//new member
+			if(false){ //FIXME enter only if the detected member is a new member
+				images.push_back(image);
+				labels.push_back(i_n++);
+				model->train(images, labels);
+			}
+			else {
+				suspects.push_back(grayMat);
+				logger("warn the user")(INFO);
+				//TODO alert through app
+			}
+		}	
+		logger("predicted = %d", predicted)(INFO);
 	}
 }
 
 sqlite3 *db;
 void exitHandler(int sig){
-	log("writing to Database...please wait", YELLOW);
+	logger("writing to Database...please wait")(INFO);
 	sqlite3_exec(db, "select * from table1", sqlite_callback, 0 ,&zErrMsg);
 	sqlite3_free(zErrMsg);
 	sqlite3_close(db);
@@ -107,27 +94,40 @@ void exitHandler(int sig){
 
 
 int init_db(){
-	int rc = sqlite3_open("db/db.sqlite3",&db);
+int rc = sqlite3_open("db/db.sqlite3",&db);
 	if(rc){
-		log("can't open database, try giving previleges to the file");
+		logger("can't open database, try giving previleges to the file")(ERROR);
 		return -1;
 	}else{
-		log("database is opened");
+		logger("database is opened")(INFO);
 		return 0;
 	}
 }
+//returns 0 on success
+//loads images, labels, suspects, suspectsl
+int load_trained_data(){
+	//retreive path form sql and push 
+	return 0;
+}
 
 int main(int argc, char *argv[]){
+	TAG("Hades")(LOG_INIT | LOG_COLOR);//for logging library
+	init_hades();
 	signal(SIGINT, exitHandler);
-	TAG("GGDB");//for logging library
+	logger("Delete Me!")(ERROR);
 	//load_gui via opencv
 	if(init_db()<-1) //TODO clean up return types **db_error
 		return -1;
+	logger("Database loaded successfully")(INFO);
 	load_gui();
 
+	if(load_trained_data() != 0){ //no trained data
+		//TODO train data
+	}
 	//capture from camera
 	//process the frames
-	start_dvr();
+	pthread_t dvr_thread;
+	pthread_create(&dvr_thread, NULL, start_dvr, NULL);
 
 	//if the stored person is in DB do not alert the home
 	//else if check he is breaking in to the house the inform(folks) 
@@ -136,6 +136,7 @@ int main(int argc, char *argv[]){
 
 	//async--> if there is a fire in the house. 
 	//NOTE alloted for Dinesh Kumar , DHT22 :{}
+	pthread_join(dvr_thread, NULL);
 }
 
 
@@ -151,6 +152,7 @@ int inform(enum folks folk){
 	}
 	else if(folk == ALL){
 		//alert user and police
+		return 0;
 	}
 	else return -1; //TODO rather returning failure, try to inform the user using messgage like hike!
 }
