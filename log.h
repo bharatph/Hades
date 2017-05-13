@@ -62,8 +62,8 @@ void _opt(int opti){
    return _opt;
  }
 
-void change_socket(int sockfd){
-	*writefd = sockfd;
+void change_out_socket(int *sockfd){
+	writefd = sockfd;
 }
 
  enum LEVEL {
