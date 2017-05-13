@@ -16,8 +16,6 @@ using namespace std;
 using namespace cv;
 using namespace cv::face;
 
-#define DEBUGGING
-
 int inform(enum folks folk);
 
 //int label = 0;
@@ -48,6 +46,7 @@ int load_gui()
 
 }
 void *start_dvr(void *L){
+	logger("DVR started")(INFO);
 	VideoCapture cap;
 	if(!cap.open(0)){
 		logger("cannot open CAM")(ERROR);
@@ -55,8 +54,13 @@ void *start_dvr(void *L){
 	}
 	cv::Mat image;
 	model = createEigenFaceRecognizer();
-	logger("FaceRecognizer class initialized...")(INFO);	
 	cv::Mat grayMat;
+	//
+	cap >> image;
+	images.push_back(image);
+	labels.push_back(i_n++);
+	model -> train(images, labels);
+	logger("First frame is given as sample for training")(ERROR);
 	while(true){ 
 		cap >> image;
 		cv::imshow("Hades", image);
@@ -78,23 +82,35 @@ void *start_dvr(void *L){
 				//TODO alert through app
 			}
 		}	
-		logger("predicted = %d", predicted)(INFO);
+		//logger("predicted = %d", predicted)(INFO);
 	}
+	return NULL;
 }
 
 sqlite3 *db;
-void exitHandler(int sig){
+
+void exit_operations(){
+	printf("\n");
 	logger("writing to Database...please wait")(INFO);
-	sqlite3_exec(db, "select * from table1", sqlite_callback, 0 ,&zErrMsg);
+	//sqlite3_exec(db, "select * from table1", sqlite_callback, 0 ,&zErrMsg);
 	sqlite3_free(zErrMsg);
 	sqlite3_close(db);
 	//write suspect and persons to db and exit
 	exit(0);
+
+}
+
+void exitHandler(int sig){
+	exit_operations();
 }
 
 
 int init_db(){
-int rc = sqlite3_open("db/db.sqlite3",&db);
+	if(sqlite3_initialize() != SQLITE_OK){
+		logger("cannot initialize sqlite3 library")(CRITICAL);
+		return -1;
+	}
+	int rc = sqlite3_open("db/db.sqlite3",&db);
 	if(rc){
 		logger("can't open database, try giving previleges to the file")(ERROR);
 		return -1;
@@ -106,17 +122,21 @@ int rc = sqlite3_open("db/db.sqlite3",&db);
 //returns 0 on success
 //loads images, labels, suspects, suspectsl
 int load_trained_data(){
-	//retreive path form sql and push 
+	//retreive path form sql and push to stacks 
 	return 0;
+}
+
+void *find_user(void * L){
+	logger("Finding user in the internet")(INFO);
+	return NULL;
 }
 
 int main(int argc, char *argv[]){
 	TAG("Hades")(LOG_INIT | LOG_COLOR);//for logging library
 	init_hades();
 	signal(SIGINT, exitHandler);
-	logger("Delete Me!")(ERROR);
 	//load_gui via opencv
-	if(init_db()<-1) //TODO clean up return types **db_error
+	if(init_db()< 0) //TODO clean up return types **db_error
 		return -1;
 	logger("Database loaded successfully")(INFO);
 	load_gui();
@@ -128,7 +148,11 @@ int main(int argc, char *argv[]){
 	//process the frames
 	pthread_t dvr_thread;
 	pthread_create(&dvr_thread, NULL, start_dvr, NULL);
+	
+	pthread_t find_user_thread;
+	pthread_create(&find_user_thread, NULL, find_user, NULL);
 
+	logger("Main thread continues")(INFO);
 	//if the stored person is in DB do not alert the home
 	//else if check he is breaking in to the house the inform(folks) 
 	enum folks folk = USER;
@@ -137,6 +161,7 @@ int main(int argc, char *argv[]){
 	//async--> if there is a fire in the house. 
 	//NOTE alloted for Dinesh Kumar , DHT22 :{}
 	pthread_join(dvr_thread, NULL);
+	pthread_join(find_user_thread, NULL);
 }
 
 
