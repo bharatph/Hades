@@ -16,11 +16,10 @@ void clear(){
   system("clear");
   #endif
 }
-  
+
 void print_authors(){
-	//std::ios_base::sync_with_stdio(false);
-  printf("Program developed by ");
-  for(int i = 0; i < 4; i++){ //FIXME use dynamic sizing
+  printf("developed by ");
+  for(int i = 0; i < (signed int)(sizeof(authors)/sizeof(char *)); i++){
 	  printf("%s, ", authors[i]);
    }
   printf("\n");
@@ -28,7 +27,7 @@ void print_authors(){
 void init_hades(){
 	std::ios_base::sync_with_stdio(false);
 	printf("%s",program_logo);
-	printf("%s v%d.%d.%d\n", program_name, version[0], version[1], version[2]);
+	printf("%s v%d.%d.%d-%s\n", program_name, version[0], version[1], version[2], build_type);
 	print_authors();
 }
 

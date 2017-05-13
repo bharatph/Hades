@@ -1,12 +1,9 @@
 #ifndef CONS_H
 #define CONS_H
 
-int CAM = 1; //secind camera
-
-enum cams {
-	ONE,
-	TWO
-};
+#ifndef BUFFER_SIZE
+#define BUFFER_SIZE 256
+#endif
 
 enum folks {
   USER,
@@ -24,8 +21,9 @@ const char *program_logo = " ██░ ██  ▄▄▄      ▓█████
 enum build_type {
   ALPHA=0,
   BETA=1,
-  FINAL=2
+  STABLE=5
 };
 
-int version[] = {0, 0, 4}; //format -> build_type, MAJOR_VISION, MINOR_VERSION, REVISION_NUMBER
+int version[] = {0, 0, 4}; //format -> MAJOR_VISION, MINOR_VERSION, REVISION_NUMBER
+const char *build_type = version[1] >= STABLE? "stable" : version[1] == ALPHA ? "alpha" : "beta";
 #endif
