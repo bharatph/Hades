@@ -1,12 +1,12 @@
 #ifndef INIT_H
 #define INIT_H
-
 #include <stdio.h>
 #ifdef _WIN32
 #include <windows.h>
 #elif _POSIX_
 #include <unistd.h>
 #endif
+#include "config.h"
 #include "constants.h"
 
 void clear(){
@@ -27,8 +27,7 @@ void print_authors(){
 void init_hades(){
 	std::ios_base::sync_with_stdio(false);
 	printf("%s",program_logo);
-	printf("%s v%d.%d.%d-%s\n", program_name, version[0], version[1], version[2], build_type);
+	printf("%s v%d.%d-%s\n", PROGRAM_NAME, hades_VERSION_MAJOR, hades_VERSION_MINOR, build_type);
 	print_authors();
 }
-
 #endif

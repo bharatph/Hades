@@ -1,0 +1,7 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+//cmake settings
+#define hades_VERSION_MAJOR @hades_VERSION_MAJOR@
+#define hades_VERSION_MINOR @hades_VERSION_MINOR@
+#define PROGRAM_NAME @PROGRAM_NAME@
+#endif

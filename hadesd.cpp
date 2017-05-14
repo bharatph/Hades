@@ -1,3 +1,4 @@
+#define HADES_D
 #include <iostream>
 #include <vector>
 #include <thread>
@@ -180,4 +181,4 @@ int inform(enum folks folk){
 	}
 	else return -1; //TODO rather returning failure, try to inform the user using messgage like hike!
 }
-
+#endif

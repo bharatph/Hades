@@ -13,8 +13,6 @@ enum folks {
 
 const char *authors[] = {"Dinesh Kumar", "Goutham", "Gowri Shankar", "Bharatvaj", "Jothi Kumar"};
 
-const char *program_name = "Hades"; //revolutionary IoT
-
 const char *program_logo = " ██░ ██  ▄▄▄      ▓█████▄ ▓█████   ██████ \n▓██░ ██▒▒████▄    ▒██▀ ██▌▓█   ▀ ▒██    ▒ \n▒██▀▀██░▒██  ▀█▄  ░██   █▌▒███   ░ ▓██▄   \n░▓█ ░██ ░██▄▄▄▄██ ░▓█▄   ▌▒▓█  ▄   ▒   ██▒\n░▓█▒░██▓ ▓█   ▓██▒░▒████▓ ░▒████▒▒██████▒▒\n ▒ ░░▒░▒ ▒▒   ▓▒█░ ▒▒▓  ▒ ░░ ▒░ ░▒ ▒▓▒ ▒ ░\n ▒ ░▒░ ░  ▒   ▒▒ ░ ░ ▒  ▒  ░ ░  ░░ ░▒  ░ ░\n ░  ░░ ░  ░   ▒    ░ ░  ░    ░   ░  ░  ░  \n ░  ░  ░      ░  ░   ░       ░  ░      ░  \n                   ░                      \n";
 
 //Below are for debugging purposes and to maintain builds only
@@ -24,6 +22,5 @@ enum build_type {
   STABLE=5
 };
 
-int version[] = {0, 0, 4}; //format -> MAJOR_VISION, MINOR_VERSION, REVISION_NUMBER
-const char *build_type = version[1] >= STABLE? "stable" : version[1] == ALPHA ? "alpha" : "beta";
+const char *build_type = hades_VERSION_MINOR >= STABLE? "stable" : hades_VERSION_MINOR == ALPHA ? "alpha" : "beta";
 #endif

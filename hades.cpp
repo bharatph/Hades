@@ -1,6 +1,4 @@
-#ifndef HADES_D
-#define HADES_D
-
+#define HADES_MAIN
 #include <iostream>
 
 #define LOG
@@ -12,7 +10,6 @@ void load_gui(){
 int main(int argc, char *argv[]){
 	TAG("Hades Daemon")(LOG_INIT | LOG_COLOR);
 	logger("starting Daemon")(INFO);
-
 	load_gui();
 	return 0;
 }
