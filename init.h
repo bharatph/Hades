@@ -7,7 +7,26 @@
 #include <unistd.h>
 #endif
 #include "config.h"
-#include "constants.h"
+
+#define PROGRAM_NAME "hades"
+
+enum folks {
+  USER,
+  POLICE,
+  ALL
+};
+
+const char *authors[] = {"Dinesh Kumar", "Goutham", "Gowri Shankar", "Bharatvaj", "Jothi Kumar"};
+
+const char *program_logo = " ██░ ██  ▄▄▄      ▓█████▄ ▓█████   ██████ \n▓██░ ██▒▒████▄    ▒██▀ ██▌▓█   ▀ ▒██    ▒ \n▒██▀▀██░▒██  ▀█▄  ░██   █▌▒███   ░ ▓██▄   \n░▓█ ░██ ░██▄▄▄▄██ ░▓█▄   ▌▒▓█  ▄   ▒   ██▒\n░▓█▒░██▓ ▓█   ▓██▒░▒████▓ ░▒████▒▒██████▒▒\n ▒ ░░▒░▒ ▒▒   ▓▒█░ ▒▒▓  ▒ ░░ ▒░ ░▒ ▒▓▒ ▒ ░\n ▒ ░▒░ ░  ▒   ▒▒ ░ ░ ▒  ▒  ░ ░  ░░ ░▒  ░ ░\n ░  ░░ ░  ░   ▒    ░ ░  ░    ░   ░  ░  ░  \n ░  ░  ░      ░  ░   ░       ░  ░      ░  \n                   ░                      \n";
+
+
+//Below are for debugging purposes and to maintain builds only
+enum build_type {
+  ALPHA=0,
+  BETA=1,
+  STABLE=5
+};
 
 void clear(){
   #ifdef _WIN32
@@ -16,6 +35,9 @@ void clear(){
   system("clear");
   #endif
 }
+
+
+const char *build_type = hades_VERSION_MINOR >= STABLE? "stable" : hades_VERSION_MINOR == ALPHA ? "alpha" : "beta";
 
 void print_authors(){
   printf("developed by ");

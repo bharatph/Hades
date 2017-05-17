@@ -3,5 +3,6 @@
 //cmake settings
 #define hades_VERSION_MAJOR @hades_VERSION_MAJOR@
 #define hades_VERSION_MINOR @hades_VERSION_MINOR@
-#define PROGRAM_NAME @PROGRAM_NAME@
+#define BUFFER_SIZE @BUFFER_SIZE@
+//#define PROGRAM_NAME @PROGRAM_NAME@
 #endif
