@@ -8,14 +8,15 @@
 #include <opencv2/face.hpp>
 #include <opencv2/highgui.hpp>
 #include <sqlite3.h>
-#include "constants.h"
 #define LOG
-#include "log.h"
+#include "loggerc/logc.h"
 #include "init.h"
 
 using namespace std;
 using namespace cv;
 using namespace cv::face;
+
+const char *TAG = "HADES DAEMON";
 
 int inform(enum folks folk);
 
@@ -32,7 +33,7 @@ char *zErrMsg = 0;
 int sqlite_callback(void *NotUsed, int argc, char**argv, char **azColName){
 	int i;
 	for(i=0; i<argc; i++){
-		logger("callback for sqlite3, executed the command")(INFO);
+		log_inf(TAG, "callback for sqlite3, executed the command");
 		//TODO print executed command
 	}
 	return 0;
@@ -40,17 +41,17 @@ int sqlite_callback(void *NotUsed, int argc, char**argv, char **azColName){
 
 int load_gui()
 {
-	logger("initializing GUI")(INFO);
-	cv::namedWindow("Hades", WINDOW_AUTOSIZE);
+	log_inf(TAG, "initializing GUI");
+	cv::namedWindow("Hades",WINDOW_AUTOSIZE);
 	//create gui via opencv through highgui
 	return 0;
 
 }
 void *start_dvr(void *L){
-	logger("DVR started")(INFO);
+	log_inf(TAG, "DVR started");
 	VideoCapture cap;
 	if(!cap.open(0)){
-		logger("cannot open CAM")(ERROR);
+		log_err(TAG, "cannot open CAM");
 		return NULL;
 	}
 	cv::Mat image;
@@ -61,7 +62,7 @@ void *start_dvr(void *L){
 	images.push_back(image);
 	labels.push_back(i_n++);
 	model -> train(images, labels);
-	logger("First frame is given as sample for training")(ERROR);
+	log_err(TAG, "First frame is given as sample for training");
 	while(true){ 
 		cap >> image;
 		cv::imshow("Hades", image);
@@ -79,11 +80,11 @@ void *start_dvr(void *L){
 			}
 			else {
 				suspects.push_back(grayMat);
-				logger("warn the user")(INFO);
+				log_inf(TAG, "warn the user");
 				//TODO alert through app
 			}
 		}	
-		//logger("predicted = %d", predicted)(INFO);
+		//log_inf(TAG, "predicted = %d", predicted);
 	}
 	return NULL;
 }
@@ -92,7 +93,7 @@ sqlite3 *db;
 
 void exit_operations(){
 	printf("\n");
-	logger("writing to Database...please wait")(INFO);
+	log_inf(TAG, "writing to Database...please wait");
 	//sqlite3_exec(db, "select * from table1", sqlite_callback, 0 ,&zErrMsg);
 	sqlite3_free(zErrMsg);
 	sqlite3_close(db);
@@ -107,15 +108,21 @@ void exitHandler(int sig){
 
 int init_db(){
 	if(sqlite3_initialize() != SQLITE_OK){
-		logger("cannot initialize sqlite3 library")(CRITICAL);
+		log_fat(TAG, "cannot initialize sqlite3 library");
 		return -1;
 	}
 	int rc = sqlite3_open("db/db.sqlite3",&db);
 	if(rc){
-		logger("can't open database, try giving previleges to the file")(ERROR);
+		log_inf(TAG, "creating a empty database");
+		FILE *fp = fopen("db/db.sqlite3", "w+");
+		if(fp != NULL){
+			fclose(fp);
+			return init_db();
+		}
+		log_err(TAG, "can't open database, try giving previleges to the file");
 		return -1;
 	}else{
-		logger("database is opened")(INFO);
+		log_inf(TAG, "database is opened");
 		return 0;
 	}
 }
@@ -127,18 +134,17 @@ int load_trained_data(){
 }
 
 void *find_user(void * L){
-	logger("Finding user in the internet")(INFO);
+	log_inf(TAG, "Finding user in the internet");
 	return NULL;
 }
 
 int main(int argc, char *argv[]){
-	TAG("Hades")(LOG_INIT | LOG_COLOR);//for logging library
 	init_hades();
 	signal(SIGINT, exitHandler);
 	//load_gui via opencv
 	if(init_db()< 0) //TODO clean up return types **db_error
 		return -1;
-	logger("Database loaded successfully")(INFO);
+	log_inf(TAG, "Database loaded successfully");
 	load_gui();
 
 	if(load_trained_data() != 0){ //no trained data
@@ -152,7 +158,7 @@ int main(int argc, char *argv[]){
 	pthread_t find_user_thread;
 	pthread_create(&find_user_thread, NULL, find_user, NULL);
 
-	logger("Main thread continues")(INFO);
+	log_inf(TAG, "Main thread continues");
 	//if the stored person is in DB do not alert the home
 	//else if check he is breaking in to the house the inform(folks) 
 	enum folks folk = USER;
@@ -181,4 +187,3 @@ int inform(enum folks folk){
 	}
 	else return -1; //TODO rather returning failure, try to inform the user using messgage like hike!
 }
-#endif
