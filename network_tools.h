@@ -9,8 +9,8 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
-#define LOG
-#include "log.h"
+#define ENABLE_LOG
+#include "logc.h"
 
 #ifndef BUFFER_SIZE
 #define BUFFER_SIZE 256
