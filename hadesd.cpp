@@ -2,14 +2,21 @@
 #include <iostream>
 #include <vector>
 #include <thread>
+#ifdef _WIN32
+#include <process.h>
+#include <dir.h>
+#else 
+#include <fcntl.h>
+#include <sys/stat.h>
+#endif
 #include <signal.h>
 #include <opencv2/core.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/face.hpp>
 #include <opencv2/highgui.hpp>
 #include <sqlite3.h>
-#define LOG
-#include "loggerc/logc.h"
+#define ENABLE_LOG
+#include "logc.h"
 #include "init.h"
 
 using namespace std;
@@ -106,25 +113,19 @@ void exitHandler(int sig){
 }
 
 
-int init_db(){
+int open_hades_db(const char *pathToDB){
 	if(sqlite3_initialize() != SQLITE_OK){
 		log_fat(TAG, "cannot initialize sqlite3 library");
 		return -1;
 	}
-	int rc = sqlite3_open("db/db.sqlite3",&db);
-	if(rc){
-		log_inf(TAG, "creating a empty database");
-		FILE *fp = fopen("db/db.sqlite3", "w+");
-		if(fp != NULL){
-			fclose(fp);
-			return init_db();
-		}
-		log_err(TAG, "can't open database, try giving previleges to the file");
+	int ret = 0;
+        // open connection to a DB
+        if ((ret = sqlite3_open(pathToDB, &db)) != SQLITE_OK){ //FIXME directory work
+		log_fat(TAG, "cannot create db, error code : %d", ret);
 		return -1;
-	}else{
-		log_inf(TAG, "database is opened");
-		return 0;
 	}
+	log_inf(TAG, "database is opened");
+	return 0;
 }
 //returns 0 on success
 //loads images, labels, suspects, suspectsl
@@ -142,7 +143,7 @@ int main(int argc, char *argv[]){
 	init_hades();
 	signal(SIGINT, exitHandler);
 	//load_gui via opencv
-	if(init_db()< 0) //TODO clean up return types **db_error
+	if(open_hades_db("db.sqlite3")< 0) //TODO clean up return types **db_error
 		return -1;
 	log_inf(TAG, "Database loaded successfully");
 	load_gui();

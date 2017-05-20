@@ -1,5 +1,4 @@
 bin/
-db/
 config.h
 CMakeFiles/
 CMakeCache.txt

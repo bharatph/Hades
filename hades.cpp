@@ -1,8 +1,8 @@
 #define HADES_MAIN
 #include <iostream>
 
-#define LOG
-#include "loggerc/logc.h"
+#define ENABLE_LOG
+#include "logc.h"
 
 const char *TAG = "HADES";
 
