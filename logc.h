@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
-#ifdef __linux__ //TODO add MacOSX and Unix and Solaris
+#if defined(__APPLE__) && defined(__MACH__) || defined (__linux__) //TODO add Unix and Solaris
 #include <unistd.h>
 #include <pthread.h>
 #define SEPARATOR ('/')
