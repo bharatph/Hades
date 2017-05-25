@@ -73,7 +73,11 @@ void *start_dvr(void *L){
 	while(true){ 
 		cap >> image;
 		cv::imshow("Hades", image);
-		cv::waitKey(100);
+		try {
+			cv::waitKey(100);
+		} catch(...){
+			log_err(TAG, "error in the code");
+		}
 		//this function is used to process frames
 		//verification part
 		cv::cvtColor(image, grayMat, cv::COLOR_BGR2GRAY);
@@ -147,7 +151,7 @@ int main(int argc, char *argv[]){
 		return -1;
 	log_inf(TAG, "Database loaded successfully");
 	load_gui();
-
+	log_inf(TAG, "GUI successfully loaded");
 	if(load_trained_data() != 0){ //no trained data
 		//TODO train data
 	}
