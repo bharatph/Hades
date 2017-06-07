@@ -46,14 +46,6 @@ int sqlite_callback(void *NotUsed, int argc, char**argv, char **azColName){
 	return 0;
 }
 
-int load_gui()
-{
-	log_inf(TAG, "initializing GUI");
-	cv::namedWindow("Hades",WINDOW_AUTOSIZE);
-	//create gui via opencv through highgui
-	return 0;
-
-}
 void *start_dvr(void *L){
 	log_inf(TAG, "DVR started");
 	VideoCapture cap;
@@ -72,12 +64,14 @@ void *start_dvr(void *L){
 	log_err(TAG, "First frame is given as sample for training");
 	while(true){ 
 		cap >> image;
+		/*
 		cv::imshow("Hades", image);
 		try {
 			cv::waitKey(100);
 		} catch(...){
 			log_err(TAG, "error in the code");
 		}
+		*/
 		//this function is used to process frames
 		//verification part
 		cv::cvtColor(image, grayMat, cv::COLOR_BGR2GRAY);
@@ -146,12 +140,9 @@ void *find_user(void * L){
 int main(int argc, char *argv[]){
 	init_hades();
 	signal(SIGINT, exitHandler);
-	//load_gui via opencv
 	if(open_hades_db("db.sqlite3")< 0) //TODO clean up return types **db_error
 		return -1;
 	log_inf(TAG, "Database loaded successfully");
-	load_gui();
-	log_inf(TAG, "GUI successfully loaded");
 	if(load_trained_data() != 0){ //no trained data
 		//TODO train data
 	}
