@@ -4,5 +4,5 @@
 #define hades_VERSION_MAJOR @hades_VERSION_MAJOR@
 #define hades_VERSION_MINOR @hades_VERSION_MINOR@
 #define BUFFER_SIZE @BUFFER_SIZE@
-//#define PROGRAM_NAME @PROGRAM_NAME@
+#define PROGRAM_NAME "Hades"
 #endif

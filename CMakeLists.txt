@@ -1,17 +1,16 @@
 cmake_minimum_required (VERSION 2.8)
 project (hades)
 
-find_package(OpenCV)
+find_package(OpenCV REQUIRED)
+find_package(FLTK REQUIRED)
+find_package(Threads REQUIRED)
 include_directories (${OpenCV_INCLUDE_DIRS})
 
-set (CMAKE_CXX_FLAGS "-lpthread -lsqlite3 -fPIC -Wall -I/usr/local/include -I/usr/local/include/FL/images -D_THREAD_SAFE -D_REENTRANT -D_FILE_OFFSET_BITS=64 -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -L/usr/local/lib -lfltk -lm -ldl -framework Cocoa")
+set (CMAKE_CXX_FLAGS "-lsqlite3 -fPIC -Wall")
 
-#version number
+##version number
 set (hades_VERSION_MAJOR 0)
 set (hades_VERSION_MINOR 4)
-
-#program info
-#set (PROGRAM_NAME ""Hades"")
 
 #miscellaneous
 set (BUFFER_SIZE 256)
@@ -22,6 +21,11 @@ configure_file (
 	"${PROJECT_BINARY_DIR}/config.h"
 	)
 include_directories ("${PROJECT_BINARY_DIR}")
-add_executable (bin/hades hades.cpp)
-add_executable (bin/hadesd hadesd.cpp)
-target_link_libraries(bin/hadesd ${OpenCV_LIBS})
+add_executable (hades hades.cpp)
+add_executable (hadesd hadesd.cpp)
+target_link_libraries(hadesd ${OpenCV_LIBS})
+target_link_libraries(hadesd ${FLTK_LIBS})
+target_link_libraries(hades ${OpenCV_LIBRARIES})
+target_link_libraries(hades ${FLTK_LIBRARIES})
+target_link_libraries(hadesd ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(hades ${CMAKE_THREAD_LIBS_INIT})

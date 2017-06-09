@@ -1,6 +1,2 @@
-bin/
+build/
 config.h
-CMakeFiles/
-CMakeCache.txt
-cmake_install.cmake
-Makefile

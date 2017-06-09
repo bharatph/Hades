@@ -8,8 +8,6 @@
 #endif
 #include "config.h"
 
-#define PROGRAM_NAME "hades"
-
 enum folks {
   USER,
   POLICE,
