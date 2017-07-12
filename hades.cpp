@@ -1,39 +1,30 @@
-#define HADES_MAIN
+#define HADES "HADES"
 #include <iostream>
 #include <FL/Fl.H>
 #include <FL/Fl_Window.H>
-#include "Fl_OpenCV.H"
 #include <thread>
 
-#define ENABLE_LOG
-#include "logc.h"
+#include "clog.h"
+#include "shell.h"
+#include "ui.h"
+int help(int, char **);
 
-const char *TAG = "HADES";
+//Fl_OpenCV *open_highgui;
 
-Fl_Window *root = nullptr;
-Fl_OpenCV *open_highgui;
-pthread_t ui_thread;
+job jobs[] = {
+	{"help", "prints this help line", help}
+};
 
-int start_gui(){
-	root -> show();
-	return Fl::run();
-}
+int jlen =  sizeof(jobs)/sizeof(job);
 
-
-void *load_gui(void *opt){
-	root = new Fl_Window(0, 0, 256, 256, "Hades");
-	open_highgui = new Fl_OpenCV(0,0, 128, 128);
-	root->add(open_highgui);
-	start_gui();
-	return nullptr;
+int help(int count, char **args){
+	sh_help(jobs, jlen);
+	return 0;
 }
 
 int main(int argc, char *argv[]){
 	std::ios_base::sync_with_stdio(false);
-	log_inf(TAG, "Starting GUI");
-	//pthread_create(&ui_thread, NULL, load_gui, NULL);
-	//pthread_join(ui_thread, NULL);
-	load_gui(nullptr);
-	log_inf(TAG, "lol");
+	log_inf(HADES, "Starting GUI");
+	load_ui(jobs, jlen);
 	return 0;
 }

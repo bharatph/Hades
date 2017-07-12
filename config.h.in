@@ -5,4 +5,5 @@
 #define hades_VERSION_MINOR @hades_VERSION_MINOR@
 #define BUFFER_SIZE @BUFFER_SIZE@
 #define PROGRAM_NAME "Hades"
+#cmakedefine ENABLE_LOG
 #endif

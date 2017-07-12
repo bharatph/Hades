@@ -15,8 +15,8 @@
 #include <opencv2/face.hpp>
 #include <opencv2/highgui.hpp>
 #include <sqlite3.h>
-#define ENABLE_LOG
-#include "logc.h"
+
+#include "clog.h"
 #include "init.h"
 
 using namespace std;

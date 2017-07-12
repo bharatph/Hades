@@ -12,13 +12,19 @@ set (CMAKE_CXX_FLAGS "-lsqlite3 -fPIC -Wall")
 set (hades_VERSION_MAJOR 0)
 set (hades_VERSION_MINOR 4)
 
+option(ENABLE_LOG
+	"Enable debugging" OFF)
+if(ENABLE_LOG)
+	add_definitions(-DENABLE_LOG)
+endif(ENABLE_LOG)
+
 #miscellaneous
 set (BUFFER_SIZE 256)
 
 #configure file to add CMake settings to it
 configure_file (
 	"${PROJECT_SOURCE_DIR}/config.h.in"
-	"${PROJECT_BINARY_DIR}/config.h"
+	"${PROJECT_SOURCE_DIR}/config.h"
 	)
 include_directories ("${PROJECT_BINARY_DIR}")
 add_executable (hades hades.cpp)
