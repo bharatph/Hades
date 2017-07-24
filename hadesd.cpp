@@ -1,4 +1,4 @@
-#define HADES_D
+#define HADES_D "HADES DAEMON"
 #include <iostream>
 #include <vector>
 #include <thread>
@@ -18,12 +18,11 @@
 
 #include "clog.h"
 #include "init.h"
+#include "network_utils.h"
 
 using namespace std;
 using namespace cv;
 using namespace cv::face;
-
-const char *TAG = "HADES DAEMON";
 
 int inform(enum folks folk);
 
@@ -40,17 +39,17 @@ char *zErrMsg = 0;
 int sqlite_callback(void *NotUsed, int argc, char**argv, char **azColName){
 	int i;
 	for(i=0; i<argc; i++){
-		log_inf(TAG, "callback for sqlite3, executed the command");
+		log_inf(HADES_D, "callback for sqlite3, executed the command");
 		//TODO print executed command
 	}
 	return 0;
 }
 
 void *start_dvr(void *L){
-	log_inf(TAG, "DVR started");
+	log_inf(HADES_D, "DVR started");
 	VideoCapture cap;
 	if(!cap.open(0)){
-		log_err(TAG, "cannot open CAM");
+		log_err(HADES_D, "cannot open CAM");
 		return NULL;
 	}
 	cv::Mat image;
@@ -61,7 +60,7 @@ void *start_dvr(void *L){
 	images.push_back(image);
 	labels.push_back(i_n++);
 	model -> train(images, labels);
-	log_err(TAG, "First frame is given as sample for training");
+	log_err(HADES_D, "First frame is given as sample for training");
 	while(true){ 
 		cap >> image;
 		/*
@@ -69,7 +68,7 @@ void *start_dvr(void *L){
 		try {
 			cv::waitKey(100);
 		} catch(...){
-			log_err(TAG, "error in the code");
+			log_err(HADES_D, "error in the code");
 		}
 		*/
 		//this function is used to process frames
@@ -85,11 +84,11 @@ void *start_dvr(void *L){
 			}
 			else {
 				suspects.push_back(grayMat);
-				log_inf(TAG, "warn the user");
+				log_inf(HADES_D, "warn the user");
 				//TODO alert through app
 			}
 		}	
-		//log_inf(TAG, "predicted = %d", predicted);
+		//log_inf(HADES_D, "predicted = %d", predicted);
 	}
 	return NULL;
 }
@@ -98,7 +97,7 @@ sqlite3 *db;
 
 void exit_operations(){
 	printf("\n");
-	log_inf(TAG, "writing to Database...please wait");
+	log_inf(HADES_D, "writing to Database...please wait");
 	//sqlite3_exec(db, "select * from table1", sqlite_callback, 0 ,&zErrMsg);
 	sqlite3_free(zErrMsg);
 	sqlite3_close(db);
@@ -113,16 +112,16 @@ void exitHandler(int sig){
 
 int open_hades_db(const char *pathToDB){
 	if(sqlite3_initialize() != SQLITE_OK){
-		log_fat(TAG, "cannot initialize sqlite3 library");
+		log_fat(HADES_D, "cannot initialize sqlite3 library");
 		return -1;
 	}
 	int ret = 0;
         // open connection to a DB
         if ((ret = sqlite3_open(pathToDB, &db)) != SQLITE_OK){ //FIXME directory work
-		log_fat(TAG, "cannot create db, error code : %d", ret);
+		log_fat(HADES_D, "cannot create db, error code : %d", ret);
 		return -1;
 	}
-	log_inf(TAG, "database is opened");
+	log_inf(HADES_D, "database is opened");
 	return 0;
 }
 //returns 0 on success
@@ -132,9 +131,27 @@ int load_trained_data(){
 	return 0;
 }
 
-void *find_user(void * L){
-	log_inf(TAG, "Finding user in the internet");
-	return NULL;
+void modules_thread(void *opt){
+	//while searching for available devices if device found, let them get seen by the user
+	//if user desires, configure each devices
+	//and save their id for future use until reset
+	//if the id fails the devices is connecting for the first time or the device has been resetted
+	//return -1;
+}
+	int clients[100] = {0}; //reserved first 'int' for localhost TODO needs dynamic sizing
+
+void *start_reading(void *opt){
+	static int thread_count;
+	int client_id = thread_count++;
+	int sockfd = *((int *)opt);
+	char *buffer = (char *)malloc(BUFFER_SIZE);
+	log_inf(HADES_D, "waiting @ socket %d", sockfd);
+	while(1){
+		if(read(sockfd, buffer, BUFFER_SIZE) < 0){
+			return NULL;
+		}
+		printf("Client[%d]: %s ", client_id, buffer);
+	}
 }
 
 int main(int argc, char *argv[]){
@@ -142,19 +159,17 @@ int main(int argc, char *argv[]){
 	signal(SIGINT, exitHandler);
 	if(open_hades_db("db.sqlite3")< 0) //TODO clean up return types **db_error
 		return -1;
-	log_inf(TAG, "Database loaded successfully");
+	log_inf(HADES_D, "Database loaded successfully");
 	if(load_trained_data() != 0){ //no trained data
 		//TODO train data
 	}
 	//capture from camera
 	//process the frames
 	pthread_t dvr_thread;
+	pthread_t net_thread;
 	pthread_create(&dvr_thread, NULL, start_dvr, NULL);
 	
-	pthread_t find_user_thread;
-	pthread_create(&find_user_thread, NULL, find_user, NULL);
-
-	log_inf(TAG, "Main thread continues");
+	log_inf(HADES_D, "Main thread continues");
 	//if the stored person is in DB do not alert the home
 	//else if check he is breaking in to the house the inform(folks) 
 	enum folks folk = USER;
@@ -162,11 +177,17 @@ int main(int argc, char *argv[]){
 
 	//async--> if there is a fire in the house. 
 	//NOTE alloted for Dinesh Kumar , DHT22 :{}
+	int i = 0;
+	while(i++ != 100){
+		if((clients[i] = start_server(argc < 2 ?DEFAULT_PORT:atoi(argv[1]))) < 0){//FIXME add a more withstanding checking
+			printf("Server initialization failed\n");
+		}
+		pthread_create(&net_thread, NULL, start_reading, &clients[i]);
+	}
 	pthread_join(dvr_thread, NULL);
-	pthread_join(find_user_thread, NULL);
 }
 
-
+//TODO use with terminology of levels
 // inform the folks in the home that there is a stranger
 int inform(enum folks folk){
 	if(folk == USER){

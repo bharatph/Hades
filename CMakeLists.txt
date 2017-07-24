@@ -4,34 +4,68 @@ project (hades)
 find_package(OpenCV REQUIRED)
 find_package(FLTK REQUIRED)
 find_package(Threads REQUIRED)
-include_directories (${OpenCV_INCLUDE_DIRS})
+include (FindPkgConfig)
+pkg_search_module(VLC REQUIRED libvlc)
 
-set (CMAKE_CXX_FLAGS "-lsqlite3 -fPIC -Wall")
+
+link_directories(
+  ${FLTK_LIBRARY_DIRS}
+  ${VLC_LIBRARY_DIRS}
+)
+
+include_directories(
+  ${FLTK_INCLUDE_DIRS}
+  ${VLC_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
+)
+
+#set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 ##version number
 set (hades_VERSION_MAJOR 0)
 set (hades_VERSION_MINOR 4)
 
+#build options
+if(${CMAKE_BUILD_TYPE} STREQUAL "Release")
 option(ENABLE_LOG
 	"Enable debugging" OFF)
+else()
+	option(ENABLE_LOG "Enable debugging" ON)
+endif()
 if(ENABLE_LOG)
 	add_definitions(-DENABLE_LOG)
-endif(ENABLE_LOG)
+endif()
+
 
 #miscellaneous
 set (BUFFER_SIZE 256)
+set (DEFAULT_PORT 12300)
 
 #configure file to add CMake settings to it
 configure_file (
 	"${PROJECT_SOURCE_DIR}/config.h.in"
 	"${PROJECT_SOURCE_DIR}/config.h"
 	)
-include_directories ("${PROJECT_BINARY_DIR}")
-add_executable (hades hades.cpp)
-add_executable (hadesd hadesd.cpp)
-target_link_libraries(hadesd ${OpenCV_LIBS})
-target_link_libraries(hadesd ${FLTK_LIBS})
-target_link_libraries(hades ${OpenCV_LIBRARIES})
-target_link_libraries(hades ${FLTK_LIBRARIES})
-target_link_libraries(hadesd ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(hades ${CMAKE_THREAD_LIBS_INIT})
+
+
+if( WIN32 ) #WINDOWS
+    if( ${CMAKE_BUILD_TYPE} STREQUAL "Release")
+	    set( CMAKE_CXX_FLAGS "-Wl,-s -Wno-write-strings -Ofast -std=gnu++11 -DWIN32 -mwindows")
+    else()
+	    set( CMAKE_CXX_FLAGS "-Wno-write-strings -Wall -g -DDEBUG -std=gnu++11 -DWIN32 -mwindows")
+    endif()
+else()     #LINUX
+    if( ${CMAKE_BUILD_TYPE} STREQUAL "Release")
+	    set( CMAKE_CXX_FLAGS "-Wl,-s -lsqlite3 -Wno-write-strings -fPIC -Wall -lrt -Ofast -march=native -mtune=native -std=c++11")
+    else()
+	    set( CMAKE_CXX_FLAGS "-Wno-write-strings -lsqlite3 -lrt -Wall -ggdb3 -DDEBUG -std=c++11")
+    endif()
+endif()
+
+#include_directories ("${PROJECT_BINARY_DIR}")
+ADD_EXECUTABLE(hades hades.cpp ${FLTK_INCLUDE_DIRS} ${VLC_INCLUDE_DIRS})
+ADD_EXECUTABLE(hadesd hadesd.cpp ${OpenCV_INCLUDE_DIRS})
+
+TARGET_LINK_LIBRARIES(hades  ${VLC_LIBRARIES} ${VLC_LIBRARY_DIRS} ${FLTK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} -ldl)
+TARGET_LINK_LIBRARIES(hadesd ${OpenCV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} -ldl)

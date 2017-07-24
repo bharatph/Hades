@@ -1,24 +1,35 @@
-//
-//  ui.h
-//  _UI_H
-//
-//  Created by Bharatvaj on 6/17/17.
-//
-//
-
-#ifndef _UI_H
-#define _UI_H "UI"
-
+#include<iostream>
 #include<FL/Fl.H>
 #include<FL/Fl_Window.H>
+#include<FL/Fl_Double_Window.H>
+#include<FL/Fl_Text_Display.H>
+#include<FL/Fl_Menu_Bar.H>
 #include<FL/Fl_Button.H>
-#include <FL/Fl_Multiline_Output.H>
-#include <FL/Fl_Menu_Bar.H>
-#include "shell.h"
-Fl_Window *root;
-Fl_Multiline_Output *out_txt;
+#include <FL/Fl_Box.H>
+#include<FL/Fl_Scroll.H>
+using namespace std;
 
+Fl_Double_Window *root = NULL;
+Fl_Scroll *scroll = NULL;
+Fl_Menu_Bar *menu_bar = NULL;
+Fl_Text_Display *out_txt = NULL;
+
+pthread_mutex_t _plock;
 bool is_gui = false;
+
+#define WIN_W 256
+#define WIN_H 256+20
+
+void println(const char *msg, ...){
+	char *buffer = (char *)malloc(sizeof(msg)+1);
+	pthread_mutex_lock(&_plock);
+	va_list vl;
+	va_start(vl, msg);
+	vsprintf(buffer, msg, vl);
+	va_end(vl);
+	printf("%s\n", buffer);
+	pthread_mutex_unlock(&_plock);
+}
 
 void gprintln(char *msg, ...){
     char *str = (char *)malloc(BUFFER_SIZE);
@@ -36,60 +47,141 @@ void gprintln(char *msg, ...){
     }
 }
 
-int start_shell(job jbs[], int jlen){
-    int status = 0;
-    while(status != 100){
-        status = sh_next(jbs, jlen, "autodoc>");
-        log_inf(_UI_H, "The process returned the status %d", status);
-    }
-    return status;
+
+int initialize(){
+	root = new Fl_Double_Window(0,0, WIN_W, WIN_H, "Hades");
+	menu_bar = new Fl_Menu_Bar(0,0, WIN_W, 20);
+	scroll = new Fl_Scroll(0,20, WIN_W, WIN_H);
+	root->resizable(scroll);
+	return 0;
+	
 }
 
-void root_exit(Fl_Widget *obj, void *opt){
-    root->hide();
-    log_inf(_UI_H, "closing window");
-    exit(EXIT_SUCCESS);
+class Fl_Grid : public Fl_Group {
+	int pos_x = 0;
+	int pos_y = 0;
+	public:
+	Fl_Grid(int _x, int _y, int _w, int _h) : Fl_Group::Fl_Group(_x, _y, _w, _h) {
+		pos_x += _x;
+		pos_y += _y;
+		
+	}
+	void add(Fl_Widget *widg, int _x = 0, int _y = 0){
+		Fl_Group::add(widg);
+		if(_x != 0 || _y != 0){
+			widg->resize(_x, _y, 64, 64);
+			parent()->redraw();
+		}
+		else{
+		widg->resize(pos_x, pos_y, 300, 64);
+		parent()->redraw();
+		pos_y += 64;
+		pos_x += 0;
+		}
+	}
+
+};
+
+const char *rooms[] = {
+	"Living Room", 
+	"Kitchen",
+	"Garage",
+	"Compound",
+	"Master Bedroom",
+	"Bedroom"
+};
+
+int rooms_size = sizeof(rooms)/sizeof(char *);
+
+Fl_Group *temperature_room(int x, int y){
+	Fl_Group *grp = new Fl_Group(0, 0, 256, 256);
+	Fl_Text_Display *txt = new Fl_Text_Display(0,0,200, 50);
+	txt->buffer(new Fl_Text_Buffer(29));
+	txt->insert("Temperature");
+	grp->add(txt);
+	return grp;
+}
+Fl_Group *camera_device(int x, int y){
+	Fl_Group *grp = new Fl_Group(0, 0, 256, 256);
+	Fl_Text_Display *txt = new Fl_Text_Display(0,0,200, 50);
+	txt->buffer(new Fl_Text_Buffer(29));
+	txt->insert("Camera");
+	grp->add(txt);
+	return grp;
+}
+Fl_Group *relay_switch(int x, int y){
+	Fl_Group *grp = new Fl_Group(0, 0, 256, 256);
+	Fl_Text_Display *txt = new Fl_Text_Display(0,0,200, 50);
+	txt->buffer(new Fl_Text_Buffer(29));
+	txt->insert("Relay Switch");
+	grp->add(txt);
+	return grp;
+}
+void btn_click(Fl_Widget *obj){
+	static int cnt;
+	Fl_Button *btn = (Fl_Button *)obj; //TODO get name from btn and compare it with rooms
+	Fl_Double_Window *child_win = new Fl_Double_Window(0,0, 256, 256);
+	if(cnt++ % 3 == 0){
+		child_win->add(temperature_room(0, 0));
+	}else if(cnt % 3 == 1){
+		child_win->add(camera_device(0,0));
+	}else if(cnt % 3 == 2){
+		child_win->add(relay_switch(0,0));
+	}
+	child_win->show();
 }
 
-int _jlen = 0; //tech dept
-//TODO detect available commands and do the what has to be done with list
-void btn_cb(Fl_Widget *obj, void *opt){
-    job *jbs = (job *)opt;
-    char *btn_name = (char *)malloc(BUFFER_SIZE);
-    strcpy(btn_name, ((Fl_Button *)obj)->label());
-    for (int i = 0; i < _jlen; i++) {
-        if (strcmp(btn_name, jbs[i].command) == 0) {
-            (jbs[i].function)(0, NULL); //FIXME correct args and count
-        }
-    }
+Fl_Group *main_home(int x, int y){
+	int count=0;
+	int w = (WIN_W) /2 ;
+	int h = (WIN_H) / 3;
+	Fl_Group *grd = new Fl_Group(0, 0, WIN_W, WIN_H);
+	for(int i  = 0 ; i < rooms_size/2; i++)
+	{
+		for(int j = 0; j <2; j++){
+		Fl_Button *btn = new Fl_Button(w*i,h*j, w, h, rooms[count++]);
+		btn->callback(btn_click);
+		grd->add(btn);
+		}
+
+	}
+	return grd;
 }
 
-Fl_Button *send_btn = NULL;
-
-int resize(Fl_Widget *obj, void *opt){
-	//send_btn.resize(root->windowWidth/2, 0, 45, 20);
-	return -1;
+Fl_Group *camera_4(int _x, int _y){
+	int x = _x;
+	int y = _y;
+	Fl_Grid *grp = new Fl_Grid(x,y,128, 2048);
+	Fl_Box *box1 = new Fl_Box(0,0, 64, 64);
+	box1->color(FL_GRAY0);
+	box1->box(FL_UP_BOX);
+	Fl_Box *box2 = new Fl_Box(0,0, 64, 64);
+	box2->color(FL_GRAY0);
+	box2->box(FL_UP_BOX);
+	Fl_Box *box3 = new Fl_Box(64,64, 64, 64);
+	box3->color(FL_GRAY0);
+	box3->box(FL_UP_BOX);
+	Fl_Box *box4 = new Fl_Box(64,0, 64, 64);
+	box4->color(FL_GRAY0);
+	box4->box(FL_UP_BOX);
+	grp->add(box1);
+	grp->add(box2);
+	grp->add(box3, 64, 64);
+	grp->add(box2, 0, 64);
+	return grp;
 }
 
-int detect_display_and_set_max_and_min_size(){
-	return -1;
+int start_gui(int jlen, job *jobs){
+	initialize();
+	root->add(menu_bar);
+	root->add(scroll);
+	scroll->add(main_home(0,0));
+	scroll->type(Fl_Scroll::BOTH_ALWAYS);
+	root->show();
+	return Fl::run();
 }
 
-//TODO load settings from a configuration file
-
-#define LOG_TXT_SIZE 12
-int start_gui(job jbs[], int jlen){
-    send_btn = new Fl_Button(0, 0, 45, 20);
-    root = new Fl_Window(0, 0, 256, 256, "Hades");
-    //TODO set max and min size for Fl_Window
-    root->add(send_btn);
-    root->callback(root_exit);
-    log_inf(_UI_H, "GUI Starting...");
-    root->show();
-    return Fl::run();
-}
-
-int load_ui(job jbs[], int jlen, bool _is_gui = 1){
+int load_ui(int jlen, job *jbs,  bool _is_gui = true, const char *shell_name = "$ "){
     //add checks for CLI or GUI from args
     	is_gui = _is_gui;
 	if(!_is_gui /*|| screen not found*/){
@@ -99,9 +191,8 @@ int load_ui(job jbs[], int jlen, bool _is_gui = 1){
             println("screen not found continuing with command line interface");
          }
          */
-		start_shell(jbs, jlen);
+		start_shell(jlen, jbs, shell_name);
 	}
-	else start_gui(jbs, jlen);
+	else start_gui(jlen, jbs);
 	return 0;
 }
-#endif /* ui_h */
