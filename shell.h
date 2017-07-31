@@ -39,14 +39,14 @@ struct job{
 int shell_socket = 2;
 
 int sh_process(int jlen, job *jobs, char *line){
-int count = 0;
+int count = -1;
   ssize_t arg_buffsize = 64; //chage variably
     char **args = (char **)calloc(arg_buffsize, SH_BUFSIZE);
 
 	 char *token = strtok(line, SH_TOK_DELIM);
     while(token != NULL){
 
-		args[count++] = token;
+		args[++count] = token;
 		if(count == arg_buffsize){
 			arg_buffsize += 64;//change variably
 			args = (char **)realloc(args, sizeof(char) * arg_buffsize);

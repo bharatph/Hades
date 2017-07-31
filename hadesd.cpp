@@ -147,10 +147,9 @@ void *start_reading(void *opt){
 	char *buffer = (char *)malloc(BUFFER_SIZE);
 	log_inf(HADES_D, "waiting @ socket %d", sockfd);
 	while(1){
-		if(read(sockfd, buffer, BUFFER_SIZE) < 0){
-			return NULL;
+		if(read_data(sockfd, buffer, 1) == 0){
+			log_inf(HADES_D, "Client[%d]: %s ", client_id, buffer);
 		}
-		printf("Client[%d]: %s ", client_id, buffer);
 	}
 }
 

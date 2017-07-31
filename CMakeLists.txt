@@ -59,7 +59,7 @@ else()     #LINUX
     if( ${CMAKE_BUILD_TYPE} STREQUAL "Release")
 	    set( CMAKE_CXX_FLAGS "-Wl,-s -lsqlite3 -Wno-write-strings -fPIC -Wall -lrt -Ofast -march=native -mtune=native -std=c++11")
     else()
-	    set( CMAKE_CXX_FLAGS "-Wno-write-strings -lsqlite3 -lrt -Wall -ggdb3 -DDEBUG -std=c++11")
+	    set( CMAKE_CXX_FLAGS " -Wno-write-strings -lsqlite3 -lrt -Wall -ggdb3 -DDEBUG -std=c++11")
     endif()
 endif()
 

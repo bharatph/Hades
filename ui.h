@@ -1,4 +1,5 @@
 #include<iostream>
+#include<cstring>
 #include<FL/Fl.H>
 #include<FL/Fl_Window.H>
 #include<FL/Fl_Double_Window.H>
@@ -87,17 +88,19 @@ const char *rooms[] = {
 	"Kitchen",
 	"Garage",
 	"Compound",
-	"Master Bedroom",
-	"Bedroom"
+	"Bedroom",
+	"Master Bedroom"
 };
 
 int rooms_size = sizeof(rooms)/sizeof(char *);
 
-Fl_Group *temperature_room(int x, int y){
+Fl_Group *temperature_room(int x, int y, int temp){
 	Fl_Group *grp = new Fl_Group(0, 0, 256, 256);
 	Fl_Text_Display *txt = new Fl_Text_Display(0,0,200, 50);
 	txt->buffer(new Fl_Text_Buffer(29));
-	txt->insert("Temperature");
+	char *buf = (char *)malloc(200);
+	sprintf(buf, "Temperature: %d", temp);
+	txt->insert(buf);
 	grp->add(txt);
 	return grp;
 }
@@ -120,14 +123,15 @@ Fl_Group *relay_switch(int x, int y){
 void btn_click(Fl_Widget *obj){
 	static int cnt;
 	Fl_Button *btn = (Fl_Button *)obj; //TODO get name from btn and compare it with rooms
+	cnt++;
 	Fl_Double_Window *child_win = new Fl_Double_Window(0,0, 256, 256);
-	if(cnt++ % 3 == 0){
-		child_win->add(temperature_room(0, 0));
-	}else if(cnt % 3 == 1){
-		child_win->add(camera_device(0,0));
-	}else if(cnt % 3 == 2){
-		child_win->add(relay_switch(0,0));
-	}
+	int c = cnt % 3;
+	if(c == 0)
+		child_win->add(temperature_room(0,0, 26));
+	else if(c == 1)
+		child_win->add(temperature_room(0,0, 32));
+	else if(c == 2)
+		child_win->add(temperature_room(0,0, 28));
 	child_win->show();
 }
 
@@ -139,7 +143,7 @@ Fl_Group *main_home(int x, int y){
 	for(int i  = 0 ; i < rooms_size/2; i++)
 	{
 		for(int j = 0; j <2; j++){
-		Fl_Button *btn = new Fl_Button(w*i,h*j, w, h, rooms[count++]);
+		Fl_Button *btn = new Fl_Button(w*j,h*i, w, h, rooms[count++]);
 		btn->callback(btn_click);
 		grd->add(btn);
 		}

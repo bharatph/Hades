@@ -2,6 +2,7 @@
 #define _NET_TAG "NETWORK_UTILS"
 #include <stdio.h>
 #include <stdlib.h>
+#include<string.h>
 #if defined(__linux__) || defined(__APPLE__)
 
 #if defined(__linux__) && defined(kernel_version_2_4) 
@@ -30,18 +31,23 @@
  * @param sockfd The socket descriptor to write to
  * @param msg The message to be written to the socket
  */
-ssize_t write_data(int sockfd, char *msg, int msg_size){
-	ssize_t sent_bytes = 0;
-	int i = -1;
-	while(++i < msg_size && msg[i] != '\0'){
-		sent_bytes = write (sockfd, &msg[i], 1);
-		if (sent_bytes < 0){
-			log_err(_NET_TAG, "sending failed");
-			return -1;
-		}
+
+int write_data(int sockfd, const char *in_buffer, int blen){
+	char *buffer = (char *)malloc(sizeof(char) * blen);
+	strcpy(buffer, in_buffer);
+	ssize_t bwrite = -1;
+	ssize_t write_len = blen;
+	bwrite = write(sockfd, buffer, write_len);
+	while(bwrite > 0 ){
+		write_len -= bwrite;
+		bwrite = write(sockfd, buffer, write_len);
 	}
-	log_inf(_NET_TAG, "sent data: %s", msg);
-	return sent_bytes;
+	if(bwrite == -1){
+		printf("write failed");
+	}
+	else if(bwrite == 0){
+	}
+	return bwrite; //here it indicates error or success
 }
 
 /*
@@ -50,12 +56,16 @@ ssize_t write_data(int sockfd, char *msg, int msg_size){
  * @param sockfd The socket descriptor to write to
  * @param file_path The file which has to written to the socket
  */
-int send_file(int sockfd, const char *file){
+int write_file(int sockfd, const char *file){
 #if defined(__linux__) || defined(__APPLE__)
 #if defined(__kernel_version_2_4)
 	//sendfile(..,..,...);
 #else
-	//write_data(..,..,..);
+	FILE *fp = fopen(file, "rb");
+	if(fp == NULL){
+		log_err(_NET_TAG, "cannot open specified file");
+		return -1;
+	}
 #endif
 #endif
 	//code to send file to socket
@@ -65,18 +75,13 @@ int send_file(int sockfd, const char *file){
 /** Read data from the given socket
  * @param sockfd The socket descriptor to read form
  */
-int read_data (int sockfd, char *buffer, int buffer_size){
-	ssize_t read_bytes = 0;
-	int i = -1;
-	while(++i < buffer_size && buffer[i] != '\0'){
-	read_bytes = read (sockfd, &buffer[i], 1);
-	if (read_bytes < 0){
-		log_err(_NET_TAG, "read failed");
-		return -1;
+int read_data(int sockfd, char *buffer, int rlen){
+	ssize_t read_bytes = -1;
+	int i = 0;
+	while((read_bytes = read(sockfd, buffer+i, 1)) >  0){
+		i++;
 	}
-	}
-	log_inf(_NET_TAG, "data received: %s", buffer);
-	return 0;
+	return read_bytes;
 }
 
 /** Read data from the given socket

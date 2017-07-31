@@ -40,7 +40,9 @@ const char *build_type = hades_VERSION_MINOR >= STABLE? "stable" : hades_VERSION
 void print_authors(){
   printf("developed by ");
   for(int i = 0; i < (signed int)(sizeof(authors)/sizeof(char *)); i++){
-	  printf("%s, ", authors[i]);
+	  if(i == 0)
+		  printf("%s", authors[i]);
+	  else printf(", %s ", authors[i]);
    }
   printf("\n");
 }
