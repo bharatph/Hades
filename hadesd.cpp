@@ -18,13 +18,15 @@
 
 #include "clog.h"
 #include "init.h"
-#include "network_utils.h"
+#include "Node.h"
+#include "shell.h"
 
 using namespace std;
 using namespace cv;
 using namespace cv::face;
 
 int inform(enum folks folk);
+int help(int, char **);
 
 //int label = 0;
 
@@ -33,6 +35,8 @@ vector<int> labels;
 Ptr<FaceRecognizer> model;
 
 vector<Mat> suspects;
+
+Node server;
 
 int i_n = 0;
 char *zErrMsg = 0;
@@ -84,6 +88,7 @@ void *start_dvr(void *L){
 			}
 			else {
 				suspects.push_back(grayMat);
+				sleep(2);
 				log_inf(HADES_D, "warn the user");
 				//TODO alert through app
 			}
@@ -138,18 +143,44 @@ void modules_thread(void *opt){
 	//if the id fails the devices is connecting for the first time or the device has been resetted
 	//return -1;
 }
-	int clients[100] = {0}; //reserved first 'int' for localhost TODO needs dynamic sizing
+
+int echo(int count, char **args){
+	if(count < 1)return -2;
+	return server.writeln(args[0], strlen(args[0]));
+}
+
+
+int list_devices(int count, char **args){
+	char *str = (char *)malloc(512);
+	strcpy(str, "DHT11 \t For measuring temperature and Humidity\nPIR Sensor \t For detecting movements\nCamera Module \t Not working\n");
+	return write(2, str, strlen(str));
+}
+
+job jobs[] = {
+	{"help", "prints this help line", help},
+	{"list", "list the devices connected to the server", list_devices},
+	{"echo", "echoes the sent line", echo}
+};
+int jlen =  sizeof(jobs)/sizeof(job);
+
+int help(int count, char **args){
+	return sh_help(jlen, jobs);
+}
 
 void *start_reading(void *opt){
 	static int thread_count;
 	int client_id = thread_count++;
-	int sockfd = *((int *)opt);
-	char *buffer = (char *)malloc(BUFFER_SIZE);
-	log_inf(HADES_D, "waiting @ socket %d", sockfd);
+	Node node = *((Node *)opt);
+	if(strncmp(node.readln(), "CON_REQ", 7) == 0){
+		writeln("CON_ACK");
+	} else return NULL;
 	while(1){
-		if(read_data(sockfd, buffer, 1) == 0){
-			log_inf(HADES_D, "Client[%d]: %s ", client_id, buffer);
+		char *buffer = readln(sockfd);
+		if(buffer == NULL){
+			close(sockfd);
+			return NULL;
 		}
+		node.process(jlen, jobs, buffer);
 	}
 }
 
@@ -178,7 +209,7 @@ int main(int argc, char *argv[]){
 	//NOTE alloted for Dinesh Kumar , DHT22 :{}
 	int i = 0;
 	while(i++ != 100){
-		if((clients[i] = start_server(argc < 2 ?DEFAULT_PORT:atoi(argv[1]))) < 0){//FIXME add a more withstanding checking
+		if((clients[i] = server.start_server(argc < 2 ?DEFAULT_PORT:atoi(argv[1]))) < 0){//FIXME add a more withstanding checking
 			printf("Server initialization failed\n");
 		}
 		pthread_create(&net_thread, NULL, start_reading, &clients[i]);
