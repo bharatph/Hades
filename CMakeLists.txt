@@ -4,18 +4,13 @@ project (hades)
 find_package(OpenCV REQUIRED)
 find_package(FLTK REQUIRED)
 find_package(Threads REQUIRED)
-include (FindPkgConfig)
-pkg_search_module(VLC REQUIRED libvlc)
-
 
 link_directories(
   ${FLTK_LIBRARY_DIRS}
-  ${VLC_LIBRARY_DIRS}
 )
 
 include_directories(
   ${FLTK_INCLUDE_DIRS}
-  ${VLC_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
 )
 
@@ -64,8 +59,8 @@ else()     #LINUX
 endif()
 
 #include_directories ("${PROJECT_BINARY_DIR}")
-ADD_EXECUTABLE(hades hades.cpp ${FLTK_INCLUDE_DIRS} ${VLC_INCLUDE_DIRS})
+ADD_EXECUTABLE(hades hades.cpp ${FLTK_INCLUDE_DIRS})
 ADD_EXECUTABLE(hadesd hadesd.cpp ${OpenCV_INCLUDE_DIRS})
 
-TARGET_LINK_LIBRARIES(hades  ${VLC_LIBRARIES} ${VLC_LIBRARY_DIRS} ${FLTK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} -ldl)
+TARGET_LINK_LIBRARIES(hades ${FLTK_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} -ldl)
 TARGET_LINK_LIBRARIES(hadesd ${OpenCV_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} -ldl -lsqlite3)
