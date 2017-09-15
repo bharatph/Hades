@@ -7,9 +7,12 @@
 #include "clog.h"
 #include "shell.h"
 #include "ui.h"
-#include "network_utils.h"
+#include "Node.h"
 int help(int, char **);
-int sockfd  = -1; //FIXME
+
+Node node;
+
+
 //Fl_OpenCV *open_highgui;
 
 /* 
@@ -19,7 +22,7 @@ int send_data(int count, char **args){
 	if(count < 1)return -2;
 	int file_i = 0;
 	for(file_i = 0; file_i < count; file_i++){
-		if(write_data(sockfd, args[file_i], 3) < 0){ //TODO replace with write_file
+		if(node.writeln(args[file_i]) < 0){ //TODO replace with write_file
 			printf("write failed\n");
 			break;
 		}
@@ -38,13 +41,29 @@ int list_devices(int count, char **args){
 }
 
 int send_raw(int count, char **args){
+
 	if(count < 1)return -2;
+	int file_i = 0;
+	for(file_i = 0; file_i < count; file_i++){
+		if(node.writeln(args[file_i]) < 0){ //TODO replace with write_file
+			printf("write failed\n");
+			break;
+		}
+	}
+	if(file_i == count)return 0;
 	return -1;
 }
 
 int hades_connect(int count, char **args){
 	if(count < 2)return -2;
-	return sockfd = connect_server(args[0], atoi(args[1]));
+	node.connect_server(args[0], atoi(args[1]));
+	node.writeln("CON_REQ");
+	char *buf = node.readln();
+	if(strncmp("CON_ACK", buf, 7) == 0){
+		log_inf("AUTH", "Key exchange suceeded");
+		return 0;
+	}
+	return -1;
 }
 
 job jobs[] = {
