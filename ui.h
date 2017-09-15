@@ -65,20 +65,10 @@ class Fl_Grid : public Fl_Group {
 	Fl_Grid(int _x, int _y, int _w, int _h) : Fl_Group::Fl_Group(_x, _y, _w, _h) {
 		pos_x += _x;
 		pos_y += _y;
-		
 	}
 	void add(Fl_Widget *widg, int _x = 0, int _y = 0){
 		Fl_Group::add(widg);
-		if(_x != 0 || _y != 0){
-			widg->resize(_x, _y, 64, 64);
-			parent()->redraw();
-		}
-		else{
-		widg->resize(pos_x, pos_y, 300, 64);
-		parent()->redraw();
-		pos_y += 64;
-		pos_x += 0;
-		}
+		printf("%d %d\n", _x, _y);
 	}
 
 };
@@ -102,6 +92,8 @@ Fl_Group *temperature_room(int x, int y, int temp){
 	sprintf(buf, "Temperature: %d", temp);
 	txt->insert(buf);
 	grp->add(txt);
+	Fl_Button *btn = new Fl_Button(0, 75, 150, 50, "Normalize Temp");
+	grp->add(btn);
 	return grp;
 }
 Fl_Group *camera_device(int x, int y){
@@ -137,13 +129,14 @@ void btn_click(Fl_Widget *obj){
 
 Fl_Group *main_home(int x, int y){
 	int count=0;
-	int w = (WIN_W) /2 ;
-	int h = (WIN_H) / 3;
-	Fl_Group *grd = new Fl_Group(0, 0, WIN_W, WIN_H);
-	for(int i  = 0 ; i < rooms_size/2; i++)
+	int w = Fl::w() /3 ;
+	int h = Fl::h() / 2;
+	int columns = 3;
+	Fl_Grid *grd = new Fl_Grid(0, 0, Fl::w(), Fl::h());
+	for(int row  = 0 ; row < rooms_size/columns; row++)
 	{
-		for(int j = 0; j <2; j++){
-		Fl_Button *btn = new Fl_Button(w*j,h*i, w, h, rooms[count++]);
+		for(int j = 0; j < columns ; j++){
+		Fl_Button *btn = new Fl_Button(w*j,h*row, w, h, rooms[count++]);
 		btn->callback(btn_click);
 		grd->add(btn);
 		}
