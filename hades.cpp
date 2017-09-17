@@ -8,21 +8,22 @@
 #include "shell.h"
 #include "ui.h"
 #include "Node.h"
+
 int help(int, char **);
 
-Node node;
+node::Node client;
 
 
 //Fl_OpenCV *open_highgui;
 
-/* 
- * Checks and sends the data to the server 
+/*
+ * Checks and sends the data to the server
  */
 int send_data(int count, char **args){
 	if(count < 1)return -2;
 	int file_i = 0;
 	for(file_i = 0; file_i < count; file_i++){
-		if(node.writeln(args[file_i]) < 0){ //TODO replace with write_file
+		if(client.writeln(args[file_i]) < 0){ //TODO replace with write_file
 			printf("write failed\n");
 			break;
 		}
@@ -45,10 +46,8 @@ int send_raw(int count, char **args){
 	if(count < 1)return -2;
 	int file_i = 0;
 	for(file_i = 0; file_i < count; file_i++){
-		if(node.writeln(args[file_i]) < 0){ //TODO replace with write_file
-			printf("write failed\n");
-			break;
-		}
+		client.writeln(args[file_i]);
+		cout << client.readln() << endl;
 	}
 	if(file_i == count)return 0;
 	return -1;
@@ -56,14 +55,15 @@ int send_raw(int count, char **args){
 
 int hades_connect(int count, char **args){
 	if(count < 2)return -2;
-	node.connect_server(args[0], atoi(args[1]));
-	node.writeln("CON_REQ");
-	char *buf = node.readln();
-	if(strncmp("CON_ACK", buf, 7) == 0){
+	log_inf(HADES, "%s,  %s",  args[0], args[1]);
+	if(client.connect(args[0], atoi(args[1])) < 0)return -1;
+
+	client.writeln("CON_REQ", 7);
+	if(strncmp("CON_ACK", client.readln(), 7) != 0){
+	return -1;
+	}
 		log_inf("AUTH", "Key exchange suceeded");
 		return 0;
-	}
-	return -1;
 }
 
 job jobs[] = {
