@@ -20,9 +20,9 @@
 #include <opencv2/highgui.hpp>
 #include <sqlite3.h>
 
-#include "clog.h"
+#include "clog/clog.h"
+#include "Node/Node.h"
 #include "init.h"
-#include "Node.h"
 #include "shell.h"
 
 using namespace std;
@@ -41,8 +41,6 @@ vector<int> labels;
 Ptr<FaceRecognizer> model;
 
 vector<Mat> suspects;
-
-node::Node server;
 
 int i_n = 0;
 char *zErrMsg = 0;
@@ -198,7 +196,7 @@ if(strncmp(client->readln(), "CON_REQ", 7) != 0){
 	client->writeln("CON_ACK");
 	log_inf(HADES_D, "Client connected, waiting for commands");
 	while(client->process(jlen, jobs, client->readln()) != -1){
-		log_inf(HADES_D, "Request processed");
+		log_inf("SERVER", "Request Processed");
 	}
 	return 0;
 }
