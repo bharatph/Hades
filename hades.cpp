@@ -11,7 +11,7 @@
 
 int help(int, char **);
 
-node::Node client;
+node::Node *client;
 
 
 //Fl_OpenCV *open_highgui;
@@ -23,7 +23,7 @@ int send_data(int count, char **args){
 	if(count < 1)return -2;
 	int file_i = 0;
 	for(file_i = 0; file_i < count; file_i++){
-		if(client.writeln(args[file_i]) < 0){ //TODO replace with write_file
+		if(client->writeln(args[file_i]) < 0){ //TODO replace with write_file
 			printf("write failed\n");
 			break;
 		}
@@ -38,31 +38,66 @@ int display_data(int count, char **args){
 }
 
 int list_devices(int count, char **args){
+	client->writeln("list");
+	char *buf = NULL;
+	while((buf = client->readln()) != NULL){
+		printf("%s\n", buf);
+	}
 	return -1;
 }
 
 int send_raw(int count, char **args){
 
 	if(count < 1)return -2;
+	
 	int file_i = 0;
 	for(file_i = 0; file_i < count; file_i++){
-		client.writeln(args[file_i]);
-		cout << client.readln() << endl;
+		cout << args[file_i] << endl;
+		client->writeln(args[file_i]);
+		printf("%s\n",  client->readln());
 	}
 	if(file_i == count)return 0;
 	return -1;
 }
 
+int server_shell(){
+	char *buf = (char *)malloc(256);
+	int c = '\0';
+	int ptr = 0;
+	while( (c = getchar()) != '\n' ){
+		buf[ptr++] = c;
+	}
+	buf[ptr] = '\0';
+	client->writeln(buf);
+	printf("%s\n", client->readln());
+	return 0;
+}
+	
+
 int hades_connect(int count, char **args){
 	if(count < 2)return -2;
 	log_inf(HADES, "%s,  %s",  args[0], args[1]);
-	if(client.connect(args[0], atoi(args[1])) < 0)return -1;
+	client = new node::Node();
+	if(client->connect(args[0], atoi(args[1])) < 0)return -1;
 
-	client.writeln("CON_REQ", 7);
-	if(strncmp("CON_ACK", client.readln(), 7) != 0){
+	client->writeln("CON_REQ", 7);
+	if(strncmp("CON_ACK", client->readln(), 7) != 0){
 	return -1;
 	}
 		log_inf("AUTH", "Key exchange suceeded");
+		int pid = fork();
+		if(pid == 0){
+			//child
+			return server_shell();
+		} else {
+			//parent
+			if(pid == -1){
+				printf("fork failed\n");
+				return -1;
+			} else {
+				delete client;
+			}
+		}
 		return 0;
 }
 
