@@ -7,7 +7,8 @@
 #include "clog.h"
 #include "shell.h"
 #include "ui.h"
-#include "Node.h"
+#include "clog/clog.h"
+#include "Node/Node.h"
 
 int help(int, char **);
 
